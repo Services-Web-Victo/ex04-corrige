@@ -3,6 +3,8 @@
 namespace App\Domain\Movie\Service;
 
 use App\Domain\Movie\Repository\MovieRepository;
+use App\Factory\LoggerFactory;
+use Psr\Log\LoggerInterface;
 use stdClass;
 
 /**
@@ -14,10 +16,18 @@ final class MovieDelete
      * @var MovieRepository
      */
     private $repository;
+    
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
-    public function __construct(MovieRepository $repository)
+    public function __construct(MovieRepository $repository, LoggerFactory $loggerFactory)
     {
         $this->repository = $repository;
+        $this->logger = $loggerFactory
+            ->addFileHandler('MoviesLog.log')
+            ->createLogger('deleteMovie');
     }
 
     /**
@@ -40,7 +50,9 @@ final class MovieDelete
         if(empty($movieToDelete)) {
             $codeStatus = 404;
         } else {
-            $this->repository->deleteMovie($idMovie);
+            if($this->repository->deleteMovie($idMovie)) {
+                $this->logger->info('Le film "' . $movieToDelete['series_title'] . '" id [' . $idMovie . '] a été supprimé.');
+            };
         }
         
         // Si le film n'existe pas, on retourne un objet vide
