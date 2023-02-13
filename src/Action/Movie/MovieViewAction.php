@@ -20,7 +20,10 @@ final class MovieViewAction
         ResponseInterface $response
     ): ResponseInterface {
 
-        $resultat = $this->movieView->viewAllMovies();
+        // S'il n'y a pas de paramètre, retourne un tableau vide
+        $queryParams = $request->getQueryParams() ?? [];
+
+        $resultat = $this->movieView->viewAllMovies($queryParams);
 
         // Construit la réponse HTTP
         $response->getBody()->write((string)json_encode($resultat));

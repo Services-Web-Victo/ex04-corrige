@@ -27,11 +27,21 @@ class MovieRepository
     /**
      * Sélectionne la liste de tous les films
      * 
+     * @param array $genre Le genre des films à afficher, tous par défaut
+     * 
      * @return array
      */
-    public function selectAllMovies(): array
+    public function selectAllMovies(array $genres): array
     {
-        $sql = "SELECT * FROM imdb_top;";
+        $sql = "SELECT * FROM imdb_top";
+        
+        if(!empty($genres)) {
+            // Ici implode reconverti fusionne toutes les valeurs de mon tableau en les séparant par le texte
+            // %' AND genre LIKE '%
+            // Avec une concaténation on aura le string complet pour faire le WHERE: 
+            // WHERE genre LIKE '%item1%' AND genre LIKE '%item2%' ...
+            $sql .= " WHERE genre LIKE '%" . implode("%' AND genre LIKE '%", $genres) . "%'";
+        }        
 
         $query = $this->connection->prepare($sql);
         $query->execute();

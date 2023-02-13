@@ -1,5 +1,7 @@
 <?php
 
+// Source : https://odan.github.io/2020/05/25/slim4-logging.html
+
 namespace App\Factory;
 
 use Monolog\Formatter\LineFormatter;

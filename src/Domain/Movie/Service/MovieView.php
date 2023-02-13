@@ -24,14 +24,29 @@ final class MovieView
      *
      * @return array La liste des films
      */
-    public function viewAllMovies(): array
+    public function viewAllMovies(array $queryParams): array
     {
 
-        $movies = $this->repository->selectAllMovies();
+        $nbMoviesByPage = 50;
+        $page = $queryParams['page'] ?? 1;
+        // C'était pas demandé mais ici j'offre la possibilité d'avoir plus d'un genre
+        // s'il y a deux genres de spécifiés, le film doit comporté les deux pour être affiché (ET)
+        // Explode converti les valeurs de mon string genre séparée par des virgules en un tableau dont chaque
+        // valeur sera un item.
+        $genres = explode(",",$queryParams['genre']) ?? [];
+        $indexFilmDebut = ($page - 1) * $nbMoviesByPage;
+
+        $movies = $this->repository->selectAllMovies($genres);
+        $nbMovies = count($movies);
+        $moviesSliced = array_slice($movies, $indexFilmDebut, $nbMoviesByPage);
 
         // Tableau qui contient la réponse à retourner à l'usager
         $resultat = [
-            "movies" => $movies
+            "movies" => $moviesSliced,
+            "genre" => $genres,
+            "nombreFilmsTotal" => count($movies),
+            "page" => (int)$page,
+            "totalPage" => ceil($nbMovies / $nbMoviesByPage)
         ];
 
         return $resultat;
