@@ -1,0 +1,306 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: IMDB API
+  description: API de gestion d'une liste de films extrait du top 1000 du site IMDB. Réalisé dans le cadre du cours Services Web au Cégep de Victoriaville.
+  
+servers: 
+  - url: http://sw_h2023_ex04_final.loc
+paths:
+  /:
+    get:
+      tags:
+        - Général
+      summary: Message de bienvenue
+      responses:
+        '200': 
+          description: Un petit message de bienvenue
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                    message : 'Services Web H2023 - Exercice 04'
+  
+  /film:
+    get:
+      tags:
+        - Film
+      summary: Affiche la liste de tous les films divisée par page de 50.
+      parameters:
+        - in: query
+          name: genre
+          schema:
+            type: string
+            example: Drama
+          required: false
+          description: Une valeur pour filtrer par le genre
+        - in: query
+          name: page
+          required: false
+          description: Le numéro de la page à afficher, si omis la page 1 sera affichée
+          schema:
+            type: integer
+            example: 1
+
+      responses:
+        '200': 
+          description: Un tableau de livres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  movies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Film'
+                  genre:
+                    type: array
+                    items:
+                      type: string
+                    example: [Romance, Comedy]
+                  nombreFilmsTotal:
+                    type: integer
+                    example: 724
+                  page:
+                    type: integer
+                    example: 1
+                  totalPage:
+                    type: integer
+                    example: 15
+                    
+    post:
+      tags: 
+        - Film
+      summary: Ajoute un film.
+      requestBody:
+        description: Les informations du film à créer
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilmSansId'
+      responses:
+        '201': 
+          description: Les informations du flim créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+
+  /film/{id}:
+    get:
+      tags:
+        - Film
+      summary: Affiche un film selon son id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Le id du film à afficher
+          schema:
+            type: integer
+            example: 1074
+
+      responses:
+        '200': 
+          description: Le film à afficher
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+        '404': 
+          description: Le film à afficher n'est pas trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                
+    put:
+      tags: 
+        - Film
+      summary: Modifie un film.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Le id du film à modifier
+          schema:
+            type: integer
+            example: 1074
+      requestBody:
+        description: Les informations du film à modifier, toutes les informations doivent être tranmise, même si elle ne sont pas à modifier.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilmSansId'
+      responses:
+        '200': 
+          description: La film a été créé car il n'existait pas dans la base de données
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+        '201': 
+          description: La film a été modifié selon les informations requises
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+                
+    delete:
+      tags:
+        - Film
+      summary: Supprime un film
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Le id du film à supprimer
+          schema:
+            type: integer
+            example: 1074
+
+      responses:
+        '200': 
+          description: Le film a été supprimé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+        '404': 
+          description: Le film à supprimer n'a pas été trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+components:
+  schemas:
+    
+    Film:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        poster_link:
+          type: string
+        series_title:
+          type: string
+        released_year:
+          type: integer
+          format: int64
+        certificate:
+          type: string
+        runtime:
+          type: string
+        genre:
+          type: string
+        imdb_rating:
+          type: integer
+          format: int64
+        overview:
+          type: string
+        meta_score:
+          type: integer
+          format: int64
+        director:
+          type: string
+        star1:
+          type: string
+        star2:
+          type: string
+        star3:
+          type: string
+        star4:
+          type: string
+        no_of_votes:
+          type: integer
+          format: int64
+        gross:
+          type: string
+
+      example:
+          id: 1074
+          poster_link: "https://m.media-amazon.com/images/M/MV5BZWFlYmY2MGEtZjVkYS00YzU4LTg0YjQtYzY1ZGE3NTA5NGQxXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_UX67_CR0,0,67,98_AL_.jpg"
+          series_title: "The Shining"
+          released_year: 1980
+          certificate: "A"
+          runtime: "146 min"
+          genre: "Drama, Horror"
+          imdb_rating: 8.4
+          overview: "A family heads to an isolated hotel for the winter where a sinister presence influences the father into violence, while his psychic son sees horrific forebodings from both past and future."
+          meta_score: 66
+          director: "Stanley Kubrick"
+          star1: "Jack Nicholson"
+          star2: "Shelley Duvall"
+          star3: "Danny Lloyd"
+          star4: "Scatman Crothers"
+          no_of_votes: 898237
+          gross: "44,017,374"
+      
+    FilmSansId:
+      type: object
+      properties:
+        poster_link:
+          type: string
+        series_title:
+          type: string
+        released_year:
+          type: integer
+          format: int64
+        certificate:
+          type: string
+        runtime:
+          type: string
+        genre:
+          type: string
+        imdb_rating:
+          type: integer
+          format: int64
+        overview:
+          type: string
+        meta_score:
+          type: integer
+          format: int64
+        director:
+          type: string
+        star1:
+          type: string
+        star2:
+          type: string
+        star3:
+          type: string
+        star4:
+          type: string
+        no_of_votes:
+          type: integer
+          format: int64
+        gross:
+          type: string
+
+      example:
+          poster_link: "https://m.media-amazon.com/images/M/MV5BZWFlYmY2MGEtZjVkYS00YzU4LTg0YjQtYzY1ZGE3NTA5NGQxXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_UX67_CR0,0,67,98_AL_.jpg"
+          series_title: "The Shining"
+          released_year: 1980
+          certificate: "A"
+          runtime: "146 min"
+          genre: "Drama, Horror"
+          imdb_rating: 8.4
+          overview: "A family heads to an isolated hotel for the winter where a sinister presence influences the father into violence, while his psychic son sees horrific forebodings from both past and future."
+          meta_score: 66
+          director: "Stanley Kubrick"
+          star1: "Jack Nicholson"
+          star2: "Shelley Duvall"
+          star3: "Danny Lloyd"
+          star4: "Scatman Crothers"
+          no_of_votes: 898237
+          gross: "44,017,374"
+  
